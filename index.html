@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="Page.css">
+</head>
+
+<body>
+    
+<h3 id="bonjour"></h3>
+<h2>Ma Todo List</h2>
+<button onclick="deconnexion()">Déconnexion</button>
+<input type="text" id="nomTache" placeholder="Entrer une tâche">
+<button onclick="AjouterTache()"><i class="fa-solid fa-plus"></i>Ajouter</button>
+
+<p id="compteur"></p>
+<div id="liste"></div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>let userConnecte = JSON.parse(localStorage.getItem("userConnecte"));
+
+
+if (!userConnecte) {
+    window.location.href = "connexion.html";
+}
+
+
+document.getElementById("bonjour").textContent =
+    "Bonjour " + userConnecte.nom;
+
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function AjouterTache() {
+    let nom = document.getElementById("nomTache").value;
+
+    if (nom == "") {
+        alert("Veuillez entrer une tâche");
+        return;
+    }
+
+    let task = {
+        name: nom,
+        done: false,
+        user: userConnecte.email,
+        date: new Date().toLocaleString(),
+        description: ""
+    };
+
+    tasks.push(task);
+    saveTasks();
+
+    document.getElementById("nomTache").value = "";
+    afficherTaches();
+}
+
+function afficherTaches() {
+
+    let zone = document.getElementById("liste");
+    zone.innerHTML = "";
+
+    // filtrer seulement les tâches de l'utilisateur
+    let tasksUser = tasks.filter(t => t.user === userConnecte.email);
+
+    for (let i = 0; i < tasksUser.length; i++) {
+
+        let texte = tasksUser[i].name;
+
+        if (tasksUser[i].done) {
+            texte += " (Terminée)";
+        } else {
+            texte += " (Non terminée)";
+        }
+
+        let classe = "";
+        if (tasksUser[i].name.toLowerCase().includes("urgent")) {
+            classe = "urgent";
+        }
+
+        zone.innerHTML +=
+            "<p class='" + classe + "'>" + texte +
+            "<button onclick='changerStatut(" + i + ")'><i class='fa-solid fa-square-check'></i> Statut</button>" +
+            " <button onclick='supprimer(" + i + ")'><i class='fa-solid fa-delete-left'></i> Supprimer</button>" +
+            " <button onclick='modifier(" + i + ")'><i class='fa-solid fa-arrows-rotate'></i> Modifier</button>" +
+            "</p>";
+    }
+
+    let terminees = tasksUser.filter(t => t.done).length;
+    let restantes = tasksUser.length - terminees;
+
+    document.getElementById("compteur").innerHTML =
+        "Total : " + tasksUser.length +
+        " | Terminées : " + terminees +
+        " | Restantes : " + restantes;
+}
+
+function getTaskIndex(i) {
+    let tasksUser = tasks.filter(t => t.user === userConnecte.email);
+    return tasks.indexOf(tasksUser[i]);
+}
+
+function supprimer(index) {
+    let realIndex = getTaskIndex(index);
+    tasks.splice(realIndex, 1);
+    saveTasks();
+    afficherTaches();
+}
+
+function changerStatut(index) {
+    let realIndex = getTaskIndex(index);
+
+    tasks[realIndex].done = !tasks[realIndex].done;
+
+    saveTasks();
+    afficherTaches();
+}
+
+function modifier(index) {
+    let realIndex = getTaskIndex(index);
+
+    let nouveauNom = prompt("Modifier la tâche :", tasks[realIndex].name);
+
+    if (nouveauNom == null || nouveauNom == "") return;
+
+    tasks[realIndex].name = nouveauNom;
+
+    saveTasks();
+    afficherTaches();
+}
+
+
+afficherTaches();
+function deconnexion() {
+    localStorage.removeItem("userConnecte");
+    window.location.href = "connexion.html";
+}</script>
+
+</body>
+</html>

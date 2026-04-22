@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire</title>
+    <link rel="stylesheet" href="connexion.css">
+</head>
+<body>
+<h2>Connexion / Inscription</h2>
+
+<div class="form-container">
+    <input type="text" id="nom" placeholder="Nom">
+    <input type="email" id="email" placeholder="Adresse email">
+    <input type="password" id="mdp" placeholder="Mot de passe">
+<button onclick="sinscrire()">Sinscrire</button>
+<button onclick="seconnecter()">Se connecter</button>
+    <p id="message"></p>
+
+</div>
+
+<script>function sinscrire() {
+    let nom = document.getElementById("nom").value;
+    let email = document.getElementById("email").value;
+    let mdp = document.getElementById("mdp").value;
+
+    if (nom === "" || email === "" || mdp === "") {
+        alert("Remplir tous les champs");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].email === email) {
+            alert("Email déjà utilisé");
+            return;
+        }
+    }
+
+    let user = { nom: nom, email: email, mdp: mdp };
+    users.push(user);
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Inscription réussie !");
+}
+
+function seconnecter() {
+    let email = document.getElementById("email").value;
+    let mdp = document.getElementById("mdp").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].email === email && users[i].mdp === mdp) {
+
+            localStorage.setItem("userConnecte", JSON.stringify(users[i]));
+
+            window.location.href = "index.html";
+            return;
+        }
+    }
+
+    alert("Erreur login");
+}</script>
+
+</body>
+</html>
